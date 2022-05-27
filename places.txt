@@ -7,3 +7,10 @@ tempat intro live
 
 cli ganti theme 
 /home/kacod/Documents/TESTTING/custom-root/usr/share/bunsen/papirus/
+
+pengaturan grub
+/home/kacod/Documents/TESTTING/custom-root/etc/grub.d/
+
+tempat grub
+usr/share/images/bunsen/grub/
+
