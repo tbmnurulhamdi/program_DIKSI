@@ -14,3 +14,12 @@ pengaturan grub
 tempat grub
 usr/share/images/bunsen/grub/
 
+mengubah default browser
+/home/kacod/Documents/TESTTING/custom-root/usr/bin/x-www-browser
+
+mengubah format tint2
+/home/kacod/Documents/TESTTING/custom-root/usr/share/bunsen/skel/.config/tint2/
+https://gitlab.com/o9000/tint2/-/tree/master
+
+ubah menu
+/home/kacod/Documents/TESTTING/custom-root/usr/lib/jgmenu
