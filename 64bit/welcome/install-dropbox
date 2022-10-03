@@ -1,0 +1,154 @@
+install_dropbox_title=$"Dropbox"
+
+# Directory to install the dropbox cli interface, dropbox.py.
+# If dropbox.py is in user's $PATH they can use that command
+# to control dropbox. Otherwise, use the absolute path /path/to/dropbox.py
+USER_DBPY_DIR="$HOME/bin"
+USER_DBPY="$USER_DBPY_DIR/dropbox"
+# If dropbox.py is already installed, link to that,
+# so executable is named "dropbox".
+[[ -x "$USER_DBPY_DIR/dropbox.py" && ! -e "$USER_DBPY_DIR/dropbox" ]] && {
+    ln -s dropbox.py "$USER_DBPY_DIR/dropbox"
+}
+
+REMOTE_DBPY='https://linux.dropbox.com/packages/dropbox.py'
+
+USER_DB_DIR="$HOME/.dropbox-dist/"
+
+offer_dropbox() {
+    local intro="Dropbox adalah layanan sinkronisasi file populer yang menurut sebagian orang berguna.
+
+Lihatlah:
+Dropbox website https://www.dropbox.com
+Dropbox terms: https://www.dropbox.com/terms
+
+Untuk instalasi, utilitas dropbox python dropbox.py
+akan diunduh dari dropbox dan dijalankan dengan argumen \"start -i\".
+Kunjungi https://www.dropbox.com/help/desktop-web/linux-commands
+untuk informasi lebih lanjut tentang dropbox.py.
+"
+    setupPage "$install_dropbox_title" "$intro" 'Apakah Anda ingin menginstal Dropbox?' 'N' || return 0
+    say "Dropbox akan dipasang nanti."
+    triggerRunPreFunction 'install_dropbox'
+}
+
+dropbox_is_installed() {
+    [[ -x "$USER_DB_DIR/dropboxd" ]] || return 1
+    return 0
+}
+
+get_dropbox.py() {
+    [[ -e "$USER_DBPY" ]] && {
+        if [[ -x "$USER_DBPY" ]]; then
+            return 0
+        else
+            { echo "$0: $USER_DBPY ada tetapi tidak dapat dieksekusi." >&2; return 1;}
+        fi
+    }
+    mkdir -p "$USER_DBPY_DIR"
+    say 'Mengambil Dropbox frontend dropbox.py...'
+    wget -O "$USER_DBPY" "$REMOTE_DBPY" || { echo "$0: dropbox.py gagal unduh." >&2; return 1;}
+    [[ -f "$USER_DBPY" ]] || { echo "$0: $USER_DBPY tidak ada." >&2; return 1;}
+    chmod 755 "$USER_DBPY" || { echo "$0: gagal mengatur izin pada $USER_DBPY" >&2; return 1;}
+    return 0
+}
+
+install_dropbox() {
+    echo 'Sekarang menginstal Dropbox...'
+
+    get_dropbox.py || {
+        echo "$0: gagal mengambil dropbox.py" >&2
+        say 'Gagal mengambil dropbox.py'
+        return 1
+    }
+
+    allInstalled python3-gpg || {
+        say 'Kita perlu menginstal paket python3-gpg.
+Apakah Anda ingin melanjutkan?'
+        if prompt $"  Install python3-gpg?" Y
+        then
+            safeInstall python3-gpg
+        else
+            say "instalasi Dropbox ditinggalkan.
+melanjutkan..."
+            return 0
+        fi
+    }
+    sleep 1
+
+    allInstalled thunar-dropbox-plugin || {
+        say 'Anda mungkin juga mempertimbangkan untuk menginstal paket thunar-dropbox-plugin,
+yang menambahkan beberapa item menu konteks khusus dropbox untuk Thunar.
+Apakah Anda ingin melanjutkan?'
+        if prompt $"  Install thunar-dropbox-plugin?" Y
+        then
+            safeInstall --no-install-recommends thunar-dropbox-plugin
+        else
+            say "instalasi Thunar plugin ditinggalkan.
+melanjutkan..."
+        fi
+    }
+
+    say '
+Dropbox akan diunduh dan dipasang.
+Jika Anda ingin terhubung ke akun yang sudah ada, harap siapkan detail login Anda.
+(Jendela browser akan terbuka untuk login, tetapi Anda juga dapat masuk ke Dropbox nanti melalui menu sistem.)' 3
+    "$USER_DBPY" start -i > /dev/null 2>&1
+
+    dropbox_is_installed || {
+        say 'Instalasi Dropbox gagal.'
+        return 1
+    }
+
+    say '
+Dropbox telah dipasang.' 2
+    say "
+Dropbox CLI frontend dropbox.py telah dipasang di $USER_DBPY_DIR.
+Jalankan '$USER_DBPY help' untuk melihat opsi.
+(Jika $USER_DBPY_DIR ada di PATH Anda, maka jalur $USER_DBPY_DIR dapat dihilangkan.)
+
+" 4
+
+    say '
+Dropbox dapat dimulai secara otomatis saat Anda memulai sesi. Apakah Anda ingin memulai Dropbox secara otomatis saat login?'
+    if prompt '  autostart?' Y
+    then
+        add_autostart
+    fi
+}
+
+add_autostart() {
+    local time PS3
+    say 'Sebaiknya tambahkan penundaan sebelum memulai Dropbox secara otomatis agar sistem Anda dapat membuat koneksi jaringan yang berfungsi.'
+    if grep -q "$USER_DBPY start" "$HOME/.config/bunsen/autostart"
+    then
+        say "Entri mulai otomatis sudah ada."
+    else
+        PS3='Silakan masukkan waktu pilihan Anda > '
+        select time in 0 10s 20s 30s 40s 50s 60s ; do break; done
+        if [[ -n $time ]]
+        then
+            say "Menambahkan penundaan $time in $HOME/.config/openbox/autostart" 1
+            cat <<DRBX >> "$HOME/.config/bunsen/autostart"
+
+# Autostart the Dropbox daemon
+(sleep ${time}; $USER_DBPY start) &
+
+DRBX
+        else
+            say 'Entri mulai otomatis tidak ditambahkan'
+        fi
+    fi
+    say "
+Anda dapat mengubah pengaturan autostart dengan mengedit $HOME/.config/openbox/autostart dengan baris \"$USER_DBPY start\"" pause
+}
+
+if dropbox_is_installed
+then
+    setupPage "$install_dropbox_title" "Dropbox sudah terpasang."
+else
+    offer_dropbox || {
+        say 'Ada yang salah.
+Pergi ke halaman berikutnya...'
+    }
+fi

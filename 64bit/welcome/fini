@@ -1,0 +1,20 @@
+clear
+header
+say '
+ _____  _____ _     _____ _____    __    ___ _
+/  ___|| ____| |   | ____/  ___|  /  \  |_ _| |
+\___  \|  _| | |   |  _| \___  \ / /\ \  | || |
+ ___)  | |___| |___| |___ ___)  / ____ \_| ||_|
+|_____/|_____|_____|_____|_____/_/    \_\___(_)
+
+TERIMA KASIH TELAH MENGGUNAKAN DIKSI LINUX! :)
+
+Ada banyak cara Anda dapat mengubah sistem ini agar sesuai dengan kebutuhan Anda.
+
+Anda dapat menjalankan kembali skrip ini kapan saja dengan
+    bl-welcome
+
+Tekan tombol apa saja untuk keluar.'
+
+read -srn1
+clear

@@ -1,0 +1,8 @@
+triggerInstallPage $"Image Archives" \
+    $"Diksi Linux hadir dengan serangkaian gambar latar belakang, tetapi\
+ the wallpaper and other background images that were released\
+ with BunsenLabs Hydrogen and Helium are also still available.
+
+Would you like to install these other images from the BunsenLabs Image Archives package?\
+ If you do not want to do this now, remember you can run this script anytime later with 'bl-welcome'" \
+    'bunsen-images-archives'

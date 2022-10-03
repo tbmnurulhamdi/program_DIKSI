@@ -1,0 +1,38 @@
+UPDATEGRADE_TITLE=$"perbarui sumber perangkat lunak dan perbarui paket yang diinstal"
+UPDATEGRADE_TEXT=$"Sebelum melanjutkan, kami perlu memastikan perangkat lunak sistem Anda mutakhir."' '$"Script ini akan menjalankan perintah:"'
+
+    sudo apt-get update
+    sudo apt-get upgrade --with-new-pkgs
+
+'$"Jika Anda tidak ingin upgrade sekarang, Anda dapat menjalankan skrip sambutan ini kapan saja nanti di terminal dengan perintah \"bl-welcome\""
+UPDATEGRADE_PROMPT=$"Apakah Anda ingin upgrade perangkat lunak Anda?"
+
+if setupPage "$UPDATEGRADE_TITLE" "$UPDATEGRADE_TEXT" "$UPDATEGRADE_PROMPT"
+then
+    safeUpdate
+    bw_version=$(checkVersion 'bunsen-welcome')
+    log "Versi saat ini dari bunsen-welcome: $bw_version"
+    safeUpgrade --with-new-pkgs
+    bw_new_version=$(checkVersion 'bunsen-welcome')
+    if [[ $bw_new_version != $bw_version ]]
+    then
+        # This allows us to upgrade bunsen-welcome at its first run.
+        log "bunsen-welcome: upgraded to $bw_new_version"
+        say "Paket 'bunsen-welcome' telah ditingkatkan.
+SKRIP INI MUNGKIN TELAH BERUBAH, JADI AKAN DIULANG ULANG."
+        prompt $"  Hit \"Enter\" untuk melanjukan, or \"q\" untuk keluar..." Q && exit 0
+        #exec >/dev/tty 2>&1 # so terminalCheck() doesn't open a new terminal
+        # Above diversion no longer needed because we are already in terminal
+        # and --restart bypasses terminalCheck().
+        exec "$0" --restart
+    else
+        sleep 2
+    fi
+else
+    say 'Upgrade diperlukan untuk melanjutkan skrip.
+Anda dapat menjalankannya nanti dengan memasukkan:
+    bl-welcome
+
+Exiting...' 3
+    exit 0
+fi

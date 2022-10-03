@@ -1,0 +1,15 @@
+^sep()
+Power,^checkout(exit),system-shutdown
+
+^tag(tkj)
+GNS3,gns3,gns3
+Winbox,winbox,winbox
+FileZilla,filezilla,filezilla
+Cisco PacketTracer,packettracer,cisco
+
+^tag(exit)
+log out,openbox --exit,system-log-out
+Lock Screen,bl-lock,system-lock-screen
+Sleep,systemctl -i suspend,appointment-new
+Restart,systemctl -i reboot,view-refresh
+Shutdown,systemctl -i poweroff,system-shutdown

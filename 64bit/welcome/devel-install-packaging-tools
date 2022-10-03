@@ -1,0 +1,13 @@
+DEBIAN_DEVENV_TITLE=$"debian packaging tools"
+DEBIAN_DEVENV_TEXT=$"Apakah Anda ingin menginstal paket paket yang digunakan untuk mengembangkan paket Debian?"
+DEBIAN_DEVENV_PBUILDER=$"Buat lingkungan pbuilder sekarang?"
+
+if triggerInstallPage "$DEBIAN_DEVENV_TITLE" "$DEBIAN_DEVENV_TEXT" 'bunsen-meta-packaging'; then
+    say "mengonfigurasi /etc/pbuilderrc..." 2
+    sudo tee <<< "MIRRORSITE=${default_mirror}" '/etc/pbuilderrc'
+    sudo tee <<< "DISTRIBUTION=${debian_base}" -a '/etc/pbuilderrc'
+    sudo tee <<< 'COMPONENTS="main contrib non-free"' -a '/etc/pbuilderrc'
+    sleep 4
+
+#    prompt "  $DEBIAN_DEVENV_PBUILDER" && sudo pbuilder create
+fi

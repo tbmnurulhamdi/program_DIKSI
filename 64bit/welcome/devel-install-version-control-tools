@@ -1,0 +1,3 @@
+triggerInstallPage $"version control tools" \
+    $"Apakah Anda ingin menginstal beberapa alat kontrol versi yang umum digunakan?" \
+    'bunsen-meta-vcs'

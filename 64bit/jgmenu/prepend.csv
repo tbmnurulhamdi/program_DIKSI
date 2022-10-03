@@ -1,0 +1,5 @@
+Terminal,x-terminal-emulator,utilities-terminal
+Browser,firefox,firefox-esr
+File manager,thunar,system-file-manager
+TKJ Tools, ^checkout(tkj),kragilan
+^sep()

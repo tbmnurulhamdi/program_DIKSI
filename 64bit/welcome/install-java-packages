@@ -1,0 +1,3 @@
+triggerInstallPage $"Java Support" \
+    $"Secara default, Diksi Linux tidak datang dengan Java Runtime Environment. Apakah Anda ingin menginstal dukungan Java sekarang?" \
+    'bunsen-meta-java'

@@ -1,0 +1,25 @@
+<big><b>Selamat datang di Diksi Linux live!</b></big>
+
+Sistem operasi 'live' ini memungkinkan Anda menguji Diksi Linux tanpa membuat perubahan apapun
+pada harddisk komputer. Antara lain, dapat digunakan untuk memeriksa kompatibilitas perangkat
+keras (koneksi jaringan, monitor, keyboard, aplikasi dll...), untuk melakukan pemulihan sistem 
+atau untuk bekerja anonim di komputer umum.
+
+
+Pintasan keyboard untuk beberapa aplikasi tercantum di desktop
+('Menu' juga disebut Windows key).
+
+
+Klik kanan desktop untuk mengakses Menu Utama sistem, atau gunakan keyboard dengan menekan Menu.
+
+
+Nama pengguna Anda adalah '<b>user</b>' dan sandi Anda adalah '<b>live</b>'.
+Anda sudah memiliki izin sudo.
+
+
+Untuk menginstal sistem operasi ini ke hard drive, reboot dan pilih 'Install' (atau 'text 
+install') dari alih-alih menu boot 'Live'.
+
+
+
+					Terima kasih sudah mencoba <b>Diksi Linux</b>!

@@ -1,0 +1,70 @@
+setupPage $"system tweaks" $"Memeriksa sistem Anda untuk kemungkinan peningkatan..."
+
+say 'memeriksa PAE...'
+if ! grep -wq pae /proc/cpuinfo
+then
+    say $"Prosesor Anda tidak mendukung PAE." 2
+elif dpkg -l | grep -Eq '^ *ii +linux-image-[^ ]*(amd64|pae) '
+then
+    say $"Anda sudah menginstal kernel berkemampuan PAE." 2
+else
+    say $"Prosesor Anda mendukung PAE, tetapi Anda tidak menginstal kernel berkemampuan PAE.\
+ Tergantung pada perangkat keras Anda, kernel PAE mungkin, atau mungkin tidak, meningkatkan kinerja."
+    if  prompt "Apakah Anda ingin instalasi sekarang?"
+    then
+        promptTriggerInstall 'PAE Kernel' 'Skrip ini akan menginstal kernel linux yang mendukung PAE.' 'linux-image-686-pae' || say 'Melanjutkan meskipun ada masalah pemasangan...' 2
+    else
+        say 'melanjutkan...' 2
+    fi
+fi
+
+isCDInstall() {
+    [[ -r /etc/bunsen/bunsen_install ]] || return 1
+    grep -q '^Version:.*-cd-' /etc/bunsen/bunsen_install && return 0
+    return 1
+}
+
+if isCDInstall && ! allInstalled bunsen-meta-all && ! allInstalled bunsen-meta-lite
+then
+    say $"
+Paket meta Diksi Linux:
+
+Sistem ini tampaknya telah diinstal dari iso ukuran CD,\
+ dan tidak akan menginstal set lengkap paket Diksi Linux.\
+ Jika Anda ingin menginstal yang hilang sekarang, Anda dapat menginstalnya\
+ dari paket meta Diksi Linux.
+\"full\" dan \"lite\" versi tersedia:
+
+bunsen-meta-all menginstal semua paket standar..\
+ Lebih dari 600MB ruang disk ekstra akan digunakan.
+
+bunsen-meta-lite menginstal pilihan paket yang sedikit berkurang,\
+ dan beberapa diganti dengan alternatif yang lebih ringan.
+
+(Atau, Anda dapat menginstal paket yang Anda inginkan nanti, menggunakan antarmuka apt yang biasa.)
+"
+    if prompt $"Apakah Anda ingin menginstal paket sekarang?" 'N'
+    then
+        say "Apakah Anda ingin menginstal semua paket (all)\
+ atau paket alternatif yang lebih ringan (lite) ?
+
+Tekan 'a' untuk 'all' atau 'l' untuk 'lite',
+tekan tombol lainnya untuk membatalkan.
+"
+        read -r -p ' "A" for "all", "L" for "lite": '
+        case ${REPLY^} in
+        A)
+            promptTriggerInstall 'Full Metapackage' 'Skrip ini akan menginstal semua paket standar.' '--no-install-recommends' 'bunsen-meta-all' || say 'Melanjutkan meskipun ada masalah pemasangan...' 2
+            ;;
+        L)
+            promptTriggerInstall 'Light Metapackage' 'Skrip ini akan menginstal paket pilihan.' '--no-install-recommends' 'bunsen-meta-lite' || say 'Melanjutkan meskipun ada masalah pemasangan...' 2
+            ;;
+        *)
+            say $"Dibatalkan, lanjutkan ke halaman berikutnya..." 2
+            return 0;;
+        esac
+    else
+        say 'melanjutkan...' 2
+    fi
+
+fi

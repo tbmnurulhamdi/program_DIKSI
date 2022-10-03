@@ -1,0 +1,3 @@
+triggerInstallPage $"Bluetooth" \
+    $"Secara default, Diksi Linux tidak dilengkapi dengan Bluetooth. Apakah Anda ingin menginstal beberapa paket bluetooth sekarang?" \
+    'bunsen-meta-bluetooth'

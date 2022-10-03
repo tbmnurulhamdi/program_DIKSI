@@ -1,0 +1,5 @@
+if setupPage $"INSTALL DEVELOPMENT PACKAGES" \
+    $"Layar yang tersisa akan menawarkan Anda kesempatan untuk menginstal paket yang kurang umum digunakan untuk mengembangkan perangkat lunak." \
+    $"Apakah Anda ingin melihat options/screens?" 'N'; then
+    DEVEL=true
+fi

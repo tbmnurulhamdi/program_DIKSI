@@ -1,0 +1,24 @@
+WARNING_TITLE='A Warning'
+WARNING_TEXT=\
+'Sementara FOSS adalah yang utama tentang kebebasan dan pilihan, pilihan tertentu
+diketahui membawa peningkatan risiko yang merusak sistem.
+
+Dua hal yang lebih berisiko adalah:
+ * menambahkan PPA Ubuntu atau repo tidak dikenal/tidak dipercaya ke
+   /etc/apt/sources.list or /etc/apt/sources.list.d
+ * menginstal paket yang menginginkan versi libc6 yang lebih baru
+
+Informasi lebih lanjut tentang beberapa hal yang lebih berisiko, termasuk di atas,
+dapat ditemukan di sini:
+https://wiki.debian.org/DontBreakDebian
+
+(Klik kanan tautan di atas dan pilih "Buka Tautan" untuk mengunjungi halaman.)
+
+Silakan ketik "Saya mengerti" untuk melanjutkan dengan skrip ini.
+(Anda tidak akan diminta untuk melakukan ini lagi.)
+
+'
+WARNING_PROMPT=$"  Enter \"saya paham\" untuk melanjukan. (Q untuk keluar) "
+WARNING_EXTRA_ARG='saya paham'
+setupPage "$WARNING_TITLE" "$WARNING_TEXT" "$WARNING_PROMPT" "$WARNING_EXTRA_ARG" || exit 0
+createFlag 'bl-welcome-understood'

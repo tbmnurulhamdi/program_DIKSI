@@ -1,0 +1,41 @@
+tput clear
+header
+say \
+'   _   _    __    _     ___
+  | | | |  /  \  | |   / _ \
+  | |_| | / /\ \ | |  | | | |
+  |  _  |/ ____ \| |__| |_| |
+  |_| |_/_/    \_|_____\___/
+
+'"Hai $USER, "$"Selamat datang di DiksiLinux! :)
+
+Ini adalah skrip opsional setelah instalasi, dirancang untuk membantu Anda mengonfigurasi instalasi Linux baru Anda dan memaksimalkan Diski Linux.
+
+Anda sekarang akan disajikan dengan serangkaian opsi. Anda akan memerlukan kata sandi Anda, jadi harap siapkan.
+
+Anda juga memerlukan koneksi internet yang berfungsi, jadi jika Anda belum melakukannya, harap konfigurasikan koneksi internet Anda.
+
+Jika Anda tidak ingin menjalankan skrip ini sekarang, Anda dapat menjalankannya di kemudian hari dengan memasukkan perintah \"bl-welcome\" di terminal.
+
+Sistem operasi ini telah include dengan aplikasi yang sesuai kebutuhan Siswa TKJ di SMKN 1 Kragilan berikut:
+GNS3 CiscoPacketTracer Wine Winbox FileZilla Ipcalc Sipcalc Inkscape
+
+Lihat list Shortcut Keys Untuk mengetahui pintasan aplikasi.
+
+(Pesan akan disimpan ke ""$logfile"')
+'
+
+prompt $"  Hit \"Enter\" untuk melanjutkan, or \"q\" untuk keluar..." Q && exit 0
+
+say '
+Silakan masukkan kata sandi..'
+if sudo -v
+then
+    say 'Terima Kasih.'
+else
+    errorExit 'tidak memiliki izin untuk menggunakan sudo,
+yang dibutuhkan dalam skrip ini.
+Harap lakukan penyesuaian yang diperlukan sistem dan coba lagi.'
+fi
+
+connectiontest 0

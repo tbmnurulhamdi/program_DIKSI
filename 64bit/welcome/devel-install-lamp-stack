@@ -1,0 +1,54 @@
+# LAMP part 1
+LAMP_1_TITLE=$"LAMP stack"
+LAMP_1_TEXT=$"Apakah Anda ingin menginstal server web Apache2 dengan dukungan skrip PHP dan server database MySQL??"
+
+# LAMP part 2
+LAMP_2_TITLE=$"INSTALL LAMP STACK - CONTINUED"
+LAMP_2_TEXT=$"Apakah Anda ingin mengizinkan file .htaccess di /var/www/html, mengaktifkan modrewrite dan membuat symlink di dalam direktori webroot ke direktori di dalam direktori home Anda?
+Jika Anda melakukan ini, Anda akan dapat mengakses dokumen pengembangan web Anda dari alamat:""
+
+  http://localhost/$USER/
+
+"$"Jalur file akan menjadi: ""$HOME/htdocs
+
+"$"Catatan: jika sistem ini digunakan oleh banyak pengguna, Anda mungkin ingin mempertimbangkan untuk menggunakan modul 'userdir' Apache2 sebagai gantinya."
+LAMP_2_PROMPT=$"Apakah Anda ingin melakukan konfigurasi?"
+
+configureApache() {
+    a2d='/etc/apache2/sites-available/000-default.conf'
+    search='</VirtualHost>'
+    replace='    <Directory "/var/www/html">
+        AllowOverride All
+    </Directory>
+</VirtualHost>
+'
+    if [[ -f $a2d ]]; then
+        say "mengizinkan .htaccess di bawah /var/www/html di $a2d"
+        file_content="$(<"$a2d")"
+        case "$file_content" in
+        *"$replace"*)
+            say "$a2d: sudah diedit." 3
+            ;;
+        *"$search"*)
+            say "mengonfigurasi $a2d..." 2
+            sudo tee <<< "${file_content/"$search"/$'## EDITED BY BL-WELCOME\n'"$replace"}" "$a2d" >/dev/null || { say "gagal mengedit $a2d" 4; return 1;}
+            ;;
+        *)
+            say "$search tidak ditemukan di $a2d. Silakan periksa dengan text editor."
+            ;;
+        esac
+        say "mengaktifkan modrewrite"
+        sudo a2enmod rewrite || { say 'gagal: sudo a2enmod rewrite' 4; return 1;}
+        sudo systemctl restart apache2 || { say 'gagal: sudo systemctl restart apache2' 4; return 1;}
+    fi
+    say 'membuat symlink'
+    mkdir -p "$HOME/htdocs" || { say "gagal membuat direktori $HOME/htdocs" 4; return 1;}
+    sudo ln -s "$HOME/htdocs" "/var/www/html/$USER" || { say "gagal membuat symlink" 4; return 1;}
+
+}
+
+if triggerInstallPage "$LAMP_1_TITLE" "$LAMP_1_TEXT" 'bunsen-meta-lamp'; then
+    if setupPage "$LAMP_2_TITLE" "$LAMP_2_TEXT" "$LAMP_2_PROMPT" 'N'; then
+        triggerRunPostFunction configureApache
+    fi
+fi

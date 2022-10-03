@@ -1,0 +1,37 @@
+tput clear
+header
+say \
+'  _   _    __    _     ___
+  | | | |  /  \  | |   / _ \
+  | |_| | / /\ \ | |  | | | |
+  |  _  |/ ____ \| |__| |_| |
+  |_| |_/_/    \_|_____\___/
+
+'"Hai $USER, "$"Selamat datang kembali! :)
+
+Skrip sambutan ini baru saja ditingkatkan, jadi telah dimulai ulang jika ada file yang berubah.
+
+Anda akan disajikan dengan serangkaian opsi. Anda akan memerlukan kata sandi Anda, jadi harap siapkan.
+
+Anda juga memerlukan koneksi internet yang berfungsi, jadi jika Anda belum melakukannya, harap konfigurasikan koneksi internet Anda.
+
+Jika Anda tidak ingin menjalankan skrip ini sekarang, Anda dapat menjalankannya di kemudian hari dengan memasukkan perintah \"bl-welcome\" di terminal.
+
+(Pesan akan disimpan ke ""$logfile"')
+'
+
+prompt $"  Tekan \"Enter\" untuk melanjutkan, atau \"q\" untuk keluar..." Q && exit 0
+
+say '
+Jika Anda dimintai kata sandi, silakan masukkan sekarang....
+(Anda mungkin perlu memasukkannya lagi nanti, jika batas waktu habis.)'
+if sudo -v
+then
+    say 'terima kasih.'
+else
+    errorExit 'Anda tidak memiliki izin untuk menggunakan sudo,
+yang dibutuhkan dalam skrip ini.
+Harap lakukan penyesuaian yang diperlukan sistem dan coba lagi'
+fi
+
+connectiontest 0

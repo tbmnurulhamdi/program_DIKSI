@@ -1,0 +1,125 @@
+install_flash_title=$"Flash Browser Plugin"
+chromium_flash_pkgs=('pepperflashplugin-nonfree' 'chromium')
+firefox_flash_pkgs=('pepperflashplugin-nonfree' 'browser-plugin-freshplayer-pepperflash')
+old_flash_pkgs=('flashplugin-nonfree' 'bunsen-pepperflash')
+
+installFlashplugin() {
+    local intro1=$"Beberapa halaman web menggunakan format Adobe Flash eksklusif untuk memutar audio atau video.\
+ Halaman ini dapat mengunduh dan menginstal Flash Player dari Adobe.\
+ Ini adalah perangkat lunak tidak bebas yang terkadang menyebabkan masalah, dan disarankan untuk TIDAK menginstalnya jika Anda tidak perlu.
+
+Namun, sementara semakin banyak situs web yang mendukung teknologi alternatif, terkadang Flash adalah satu-satunya pilihan.
+"
+    local intro2=$"Plugin flash akan diunduh dan dikonfigurasi oleh pepperflashplugin-nonfree,\
+ yang akan mengunduh plugin PPAPI (\"pepperflash\") langsung dari Adobe.\
+ File konfigurasi akan dipasang untuk Chromium dan Firefox.
+"
+
+    local chromium_intro=$"Opsi teraman adalah menginstal Chromium dan menggunakannya hanya untuk konten Flash, terus menggunakan Firefox untuk yang lainnya.\
+ Chromium menjalankan flash dalam \"sandbox\" yang membuatnya agak terisolasi dari sisa sistem.
+"
+
+    local firefox_intro=$"Anda juga dapat menggunakan Firefox untuk konten Flash bersama dengan penjelajahan web yang lain.\
+ Firefox tidak dapat mem-flash konten \"sandbox\", sehingga kurang aman, tetapi opsi ini mungkin lebih nyaman bagi sebagian orang.
+Paket tambahan yang diperlukan browser-plugin-freshplayer-pepperflash akan diinstal.
+"
+
+    local flash_pkgs_install=()
+    local flash_pkgs_remove=()
+
+    setupPage "$install_flash_title" "$intro1" $"Apakah Anda ingin install Flash Browser Plugin?" 'N' || return 0
+
+    say "$intro2
+Ada dua pilihan:
+
+1) $chromium_intro
+2) $firefox_intro
+
+Apakah Anda ingin menggunakan Chromium untuk Flash? (safer)
+atau menggunakan plugin Pepperflash dengan Firefox?
+
+Tekan 'c' untuk Chromium atau 'f' untuk Firefox,
+Tekan tombol lain untuk membatalkan.
+"
+    local REPLY
+    read -r -p ' "C" untuk Chromium, "F" untuk Firefox: '
+    case ${REPLY^} in
+    C)
+        choice=chromium;;
+    F)
+        choice=firefox;;
+    *)
+        say $"Dibatalkan, lanjutkan ke halaman berikutnya..." 2
+        return 0;;
+    esac
+
+    echo $'\n'
+
+    for pkg in "${old_flash_pkgs[@]}"
+    do
+        allInstalled "$pkg" && flash_pkgs_remove+=("$pkg")
+    done
+    if [[ ${#flash_pkgs_remove[@]} -gt 0 ]]
+    then
+        say $"Paket-paket ini tidak lagi diperlukan, dan akan dihapus:
+${flash_pkgs_remove[*]}"
+        if prompt $"  lanjutkan?" Y
+        then
+            say "${flash_pkgs_remove[*]} akan dihapus."
+        else
+            say "...pergi ke halaman berikutnya."
+            return 0
+        fi
+    fi
+
+    case "$choice" in
+    chromium)
+        for pkg in "${chromium_flash_pkgs[@]}"
+        do
+            allInstalled "$pkg" || flash_pkgs_install+=("$pkg")
+        done
+        ;;
+    firefox)
+        for pkg in "${firefox_flash_pkgs[@]}"
+        do
+            allInstalled "$pkg" || flash_pkgs_install+=("$pkg")
+        done
+        ;;
+    esac
+
+    [[ ${#flash_pkgs_install[@]} -gt 0 ]] || {
+        say "Tidak ada paket yang dipilih untuk diinstal." 2
+        return 1
+    }
+
+    if [[ ${#flash_pkgs_remove[@]} -gt 0 ]]
+    then
+        triggerRemove "${flash_pkgs_remove[@]}" || {
+            say '...pergi ke halaman berikutnya.' 2
+            return 1
+        }
+    fi
+
+    say $"Paket-paket ini akan diinstal:
+${flash_pkgs_install[*]}"
+    if prompt $"  lanjutkan?" Y
+    then
+        triggerInstall "${flash_pkgs_install[@]}" || {
+            say '...pergi ke halaman berikutnya..' 2
+            return 1
+        }
+    else
+        say '...pergi ke halaman berikutnya..'
+        return 0
+    fi
+}
+
+if allInstalled "${firefox_flash_pkgs[@]}"
+then
+    setupPage "$install_flash_title" $"Anda sudah menginstal dan mengonfigurasi Flash Plugin untuk Firefox."
+elif allInstalled "${chromium_flash_pkgs[@]}"
+then
+    setupPage "$install_flash_title" $"Anda sudah menginstal dan mengonfigurasi Flash Plugin untuk Chromium."
+else
+    installFlashplugin
+fi

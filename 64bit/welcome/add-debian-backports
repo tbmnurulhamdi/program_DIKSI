@@ -1,0 +1,67 @@
+ADD_BACKPORTS_TITLE=$"Debian Backports"
+ADD_BACKPORTS_TEXT=$"Backports Debian adalah paket yang diambil dari rilis Debian berikutnya (disebut \"testing\"), disesuaikan dan dikompilasi ulang untuk penggunaan di Debian stable.\
+ Jika Anda mengaktifkan repositori ini, Anda akan dapat mengupgrade beberapa program ke versi yang lebih baru, atau menginstal beberapa program yang tidak tersedia di Debian stable.
+
+Namun, backport tidak dapat diuji secara ekstensif seperti Debian stable, dan disediakan apa adanya, dengan risiko ketidaksesuaian dengan komponen lain di Debian stable.\
+ Oleh karena itu, disarankan untuk hanya memilih paket backport tunggal yang sesuai dengan kebutuhan Anda, dan tidak menggunakan semua backport yang tersedia.
+
+Ini akan menambahkan baris:
+
+ deb $default_mirror ${debian_base}-backports main contrib non-free
+
+ke /etc/apt/sources.list.d/debian-${debian_base}-backports.list,
+memungkinkan Anda untuk meningkatkan atau menginstal paket menggunakan repositori itu."
+ADD_BACKPORTS_PROMPT=$"Apakah Anda ingin mengaktifkan repositori Debian Backports?"
+ADD_BACKPORTS_EXTRA_ARG='N'
+
+haveDebianBackports() {
+    shopt -s nullglob # in case there is nothing in sources.list.d/
+    grep -Pq '^deb +(?!.*bunsenlabs\.org)(?=.*debian)'"$mirror_regex +${debian_base}"'-backports(?=.*main)(?=.*contrib)(?=.*non-free)( +[a-z-]+){1,3} *$' /etc/apt/sources.list{,.d/*}
+    local retval=$?
+    shopt -u nullglob
+    return $retval
+}
+
+addDebianBackports() {
+    if haveDebianBackports
+    then
+        say 'Backports Debian telah ditambahkan ke sumber yang tepat.' 2
+    else
+        say $'\nMenambahkan backport Debian ke sumber yang tepat...\n' 1
+        local bp_repo="# added by bl-welcome
+# Debian backports
+deb $default_mirror ${debian_base}-backports main contrib non-free
+
+"
+        sudo tee <<< "$bp_repo" /etc/apt/sources.list.d/debian-"${debian_base}"-backports.list >/dev/null
+        grep -q "^deb $default_mirror ${debian_base}-backports main contrib non-free\$" /etc/apt/sources.list.d/debian-"${debian_base}"-backports.list || {
+            say 'Failed to add Debian backports to apt sources.' pause >&2
+            return 1
+        }
+        if grep -q "${debian_base}-backports" /etc/apt/sources.list
+        then
+            say $'\nmengomentari entri backport usang di /etc/apt/sources.list...'
+            local bkp_list=/etc/apt/sources.list~bl-welcome-$(date +%y%m%dT%T)~
+            sudo cp /etc/apt/sources.list "$bkp_list"
+            sed "/${debian_base}-backports/ s/^/#/" "$bkp_list" | sudo tee /etc/apt/sources.list >/dev/null
+        fi
+#        say $'\n memperbarui apt...\n'
+#        triggerUpdate || say 'Melanjutkan meskipun ada masalah pembaruan...' 2 # update is run later anyway
+    fi
+}
+
+if haveDebianBackports
+then
+    setupPage "$ADD_BACKPORTS_TITLE" $"Backport Debian telah ditambahkan ke apt sources."
+else
+    if setupPage "$ADD_BACKPORTS_TITLE" "$ADD_BACKPORTS_TEXT" "$ADD_BACKPORTS_PROMPT" "$ADD_BACKPORTS_EXTRA_ARG"; then
+        if addDebianBackports
+        then
+            say "Berhasil menambahkan backport Debian.\
+ Anda dapat menambah atau meningkatkan paket dengan perintah:
+ sudo apt-get install -t ${debian_base}-backports <packagename>" pause
+        else
+            say "Gagal menambahkan backport, buka halaman berikutnya." 3
+        fi
+    fi
+fi
